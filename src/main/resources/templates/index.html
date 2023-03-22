@@ -50,6 +50,7 @@
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
                             <el-button size="mini" @click="onSplice" type="primary">分割</el-button>
+                            <el-button size="mini" @click="initDateForm">重置</el-button>
                         </el-row>
                     </el-tab-pane>
                     <el-tab-pane label="音频转视频" name="audioToVideo">
@@ -64,6 +65,7 @@
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
                             <el-button size="mini" @click="onConvert" type="primary">转换</el-button>
+                            <el-button size="mini" @click="initDateForm2">重置</el-button>
                         </el-row>
                     </el-tab-pane>
                 </el-tabs>
@@ -148,6 +150,7 @@
                             message: response.data.msg,
                             type: 'success'
                         });
+                        this.initDateForm2();
                     } else {
                         this.$message.error(response.data.msg);
                     }
@@ -156,6 +159,17 @@
                     this.$message.error(error);
                     console.log(error);
                 });
+        },
+        initDateForm: function () {
+            this.dataForm.srcFileName = null;
+            this.dataForm.srcFilePath = null;
+            this.dataForm.destFilePath = null;
+            this.dataForm.timeArrList = [];
+        },
+        initDateForm2: function () {
+            this.dataForm2.srcFileName = null;
+            this.dataForm2.srcFilePath = null;
+            this.dataForm2.destFilePath = null;
         },
         onSplice: function() {
             if(this.dataForm.srcFileName === '' || this.dataForm.srcFileName == null) {
@@ -194,6 +208,7 @@
                         message: response.data.msg,
                         type: 'success'
                     });
+                    this.initDateForm();
                 } else {
                     this.$message.error(response.data.msg);
                 }
