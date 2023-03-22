@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <el-row :gutter="20">
+            <el-col :span="2">
+                &nbsp;
+            </el-col>
+            <el-col :span="20" style="text-align: center;">
+                <h3>音视频转换工具</h3>
+            </el-col>
+            <el-col :span="2">
+                &nbsp;
+            </el-col>
+        </el-row>
+        <el-row :gutter="20" style="margin-bottom: 10px;">
+            <el-col :span="2">
+                &nbsp;
+            </el-col>
+            <el-col :span="20" style="text-align: center;">
+                <el-tabs v-model="temp.activeName" @tab-click="handleClick">
+                    <el-tab-pane label="音视频分割" name="splice">
+                        <el-row :gutter="20" style="margin-bottom: 10px;">
+                            原始文件名称：<el-input v-model="dataForm.srcFileName" placeholder="请输入原始文件名称" style="width: 800px;"></el-input>
+                        </el-row>
+                        <el-row :gutter="20" style="margin-bottom: 10px;">
+                            原始文件地址：<el-input v-model="dataForm.srcFilePath" placeholder="请输入原始文件地址" style="width: 800px;" @change="onChangeSrcFilePath"></el-input>
+                        </el-row>
+                        <el-row :gutter="20" style="margin-bottom: 10px;">
+                            目标文件地址：<el-input v-model="dataForm.descFilePath" placeholder="请输入目标文件地址" style="width: 800px;"></el-input>
+                        </el-row>
+                        <el-row :gutter="20" style="margin-bottom: 10px;">
+                            <el-button size="mini" @click="onAddTime">添加时间范围</el-button>
+                        </el-row>
+                        <el-row :gutter="20" style="margin-bottom: 10px;">
+                            <template v-for="(item,index) in dataForm.timeArrList">
+                                <el-row :gutter="20" style="margin-bottom: 5px;">
+                                    <el-time-picker placeholder="选择时间" v-model="item[0]" value-format="HH:mm:ss"></el-time-picker>
+                                    <el-time-picker placeholder="选择时间" v-model="item[1]" value-format="HH:mm:ss"></el-time-picker>
+                                    <el-button style="margin-left: 5px;" type="danger" icon="el-icon-delete" size="mini" @click="remove(index)"></el-button>
+                                </el-row>
+                            </template>
+                        </el-row>
+                        <el-row :gutter="20" style="margin-bottom: 10px;">
+                            <el-button size="mini" @click="onSplice" type="primary">分割</el-button>
+                        </el-row>
+                    </el-tab-pane>
+                    <el-tab-pane label="音频转视频" name="audioToVideo">
+                        <div style="align-content: center"><h5>敬请期待</h5></div>
+                    </el-tab-pane>
+                </el-tabs>
+            </el-col>
+            <el-col :span="2">
+                &nbsp;
+            </el-col>
+        </el-row>
+    </div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://cdn.staticfile.org/vue/2.7.0/vue.min.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    new Vue({
+    el: '#app',
+    data: function () {
+        return {
+            temp: {
+                activeName: 'splice'
+            },
+            dataForm: {
+                srcFileName: null,
+                srcFilePath: null,
+                descFilePath: null,
+                timeArrList: [
+                ]
+            }
+        }
+    },
+    methods: {
+        handleClick(tab, event) {
+            console.log(tab, event);
+        },
+        onAddTime: function() {
+            let obj = ['00:00:00', '00:00:00']
+            this.dataForm.timeArrList.push(obj);
+        },
+        onChangeSrcFilePath: function() {
+            if(this.dataForm.descFilePath === '' || this.dataForm.descFilePath == null) {
+                this.dataForm.descFilePath = this.dataForm.srcFilePath;
+            }
+        },
+        onSplice: function() {
+            if(this.dataForm.srcFileName === '' || this.dataForm.srcFileName == null) {
+                this.$message({
+                    message: '请输入原始文件名称',
+                    type: 'warning'
+                });
+                return;
+            }
+            if(this.dataForm.srcFilePath === '' || this.dataForm.srcFilePath == null) {
+                this.$message({
+                    message: '请输入原始文件地址',
+                    type: 'warning'
+                });
+                return;
+            }
+            if(this.dataForm.descFilePath === '' || this.dataForm.descFilePath == null) {
+                this.$message({
+                    message: '请输入目标文件地址',
+                    type: 'warning'
+                });
+                return;
+            }
+            if(this.dataForm.timeArrList.length == 0) {
+                this.$message({
+                    message: '请输入要分割的时间范围',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            axios.post('http://127.0.0.1:8083/parse', this.dataForm)
+            .then(response => {
+                if(response.data.code === 0) {
+                    this.$message({
+                        message: response.data.msg,
+                        type: 'success'
+                    });
+                } else {
+                    this.$message.error(response.data.msg);
+                }
+            })
+            .catch(error => {
+                this.$message.error(error);
+                console.log(error);
+            });
+        },
+        remove: function(index) {
+            this.dataForm.timeArrList.splice(index, 1);
+        }
+    }
+    
+    })
+</script>
+</html>
