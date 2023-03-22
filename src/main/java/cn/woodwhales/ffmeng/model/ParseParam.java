@@ -21,7 +21,7 @@ public class ParseParam {
 
     private String srcFileName;
     private String srcFilePath;
-    private String descFilePath;
+    private String destFilePath;
     private List<List<String>> timeArrList;
 
     public OpResult<Void> check() throws Exception {
@@ -35,11 +35,11 @@ public class ParseParam {
 
         int index = 1;
         for (List<String> timeArr : this.timeArrList) {
-            String descFilePath = this.descFilePath + File.separator +
+            String destFilePath = this.destFilePath + File.separator +
                     StringUtils.substringBeforeLast(this.srcFileName, ".") + "-" + index + "." +
                     StringUtils.substringAfterLast(this.srcFileName, ".");
-            if (FileUtil.exist(descFilePath)) {
-                return OpResult.error(String.format("目标文件:%s已存在，请及时清理", descFilePath));
+            if (FileUtil.exist(destFilePath)) {
+                return OpResult.error(String.format("目标文件:%s已存在，请及时清理", destFilePath));
             }
         }
 
@@ -65,7 +65,7 @@ public class ParseParam {
                                       ParseParam param,
                                       Integer index) {
             String srcFilePath = param.getSrcFilePath() + File.separator + param.getSrcFileName();
-            String descFilePath = param.getDescFilePath() + File.separator +
+            String descFilePath = param.getDestFilePath() + File.separator +
                     StringUtils.substringBeforeLast(param.getSrcFileName(), ".") + "-" + index + "." +
                     StringUtils.substringAfterLast(param.getSrcFileName(), ".");
             return String.format("%s -ss %s -t %s -i %s -c copy %s", ffmengFilePath, startTime, duration, srcFilePath, descFilePath);
