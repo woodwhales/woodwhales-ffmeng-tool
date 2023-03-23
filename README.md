@@ -1,4 +1,4 @@
-# woodwhales-ffmeng-tool
+# woodwhales-ffmpeg-tool
 音视频转换工具
 
 ![](doc/index.png)
