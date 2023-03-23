@@ -1,4 +1,4 @@
-package cn.woodwhales.ffmeng.model;
+package cn.woodwhales.ffmeng.model.param;
 
 import cn.hutool.core.io.FileUtil;
 import cn.woodwhales.common.model.result.OpResult;
@@ -20,6 +20,10 @@ public class VideoToAudioParam {
     private String srcFileName;
     private String srcFilePath;
     private String destFilePath;
+
+    public String letSrcFilePath() {
+        return this.srcFilePath + File.separator + this.srcFileName;
+    }
 
     public OpResult<Void> check() throws Exception {
         if (!FileUtil.exist(this.srcFilePath)) {
@@ -43,13 +47,13 @@ public class VideoToAudioParam {
         private String srcFile;
         private String destFile;
 
-        public String letFinalCommand(String ffmengFilePath) {
-            return String.format("%s -i %s -vn -acodec copy %s", ffmengFilePath, this.srcFile, this.destFile);
+        public String letFinalCommand(String ffmpegFilePath) {
+            return String.format("%s -i %s -vn -acodec copy %s", ffmpegFilePath, this.srcFile, this.destFile);
         }
 
-        public OpResult<List<String>> getCommandList(String ffmengFilePath) {
+        public OpResult<List<String>> getCommandList(String ffmpegFilePath) {
             List<String> command = new ArrayList<String>();
-            command.add(ffmengFilePath);
+            command.add(ffmpegFilePath);
             command.add("-i");
             command.add(this.srcFile);
             command.add("-vn");

@@ -1,16 +1,20 @@
 package cn.woodwhales.ffmeng.service;
 
 import cn.woodwhales.common.model.result.OpResult;
-import cn.woodwhales.ffmeng.model.ParseParam;
-import cn.woodwhales.ffmeng.model.VideoToAudioParam;
+import cn.woodwhales.ffmeng.model.param.ParseParam;
+import cn.woodwhales.ffmeng.model.param.VideoToAudioParam;
+import cn.woodwhales.ffmeng.model.resp.MediaVo;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,29 +22,32 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class FFmengService {
+public class FfmpegService {
 
-    private String getFFmengFilePath() {
-        URL resource = this.getClass().getClassLoader().getResource("ffmpeg.exe");
+    private static String getFfmpegFilePath() {
+        URL resource = FfmpegService.class.getClassLoader().getResource("ffmpeg.exe");
         return resource.getFile();
     }
 
-    public OpResult<List<List<String>>> parseV2(ParseParam param) throws Exception {
+    public OpResult<MediaVo> parseV2(ParseParam param) throws Exception {
         log.info("param={}", JSON.toJSONString(param));
         OpResult<Void> checkOpResult = param.check();
         if(checkOpResult.isFailure()) {
             return OpResult.error(checkOpResult.getBaseRespResult().getMessage());
         }
-
-        String ffmpegFilePath = this.getFFmengFilePath();
+        MediaVo vo = new MediaVo();
+        String ffmpegFilePath = getFfmpegFilePath();
+        String srcFilePath = param.letSrcFilePath();
+        vo.setMediaDuration(getMediaDuration(srcFilePath).getData());
         List<ParseParam.CommandDto> commandDtoList = param.convert();
         int index = 1;
-        List<List<String>> result = new ArrayList<>();
+        List<List<String>> excuteLogList = new ArrayList<>();
         for (ParseParam.CommandDto commandDto : commandDtoList) {
             OpResult<List<String>> commandListOpResult = commandDto.getCommandList(ffmpegFilePath, param, index);
             if (commandListOpResult.isFailure()) {
-                OpResult<List<List<String>>> opResult = OpResult.error(commandListOpResult.getBaseRespResult().getMessage());
-                opResult.setData(result);
+                OpResult<MediaVo> opResult = OpResult.error(commandListOpResult.getBaseRespResult().getMessage());
+                vo.setExecuteLogList(Arrays.asList());
+                opResult.setData(vo);
                 return opResult;
             }
             List<String> commandList = commandListOpResult.getData();
@@ -48,10 +55,12 @@ public class FFmengService {
             if(executeOpResult.isFailure()) {
                 return OpResult.error(checkOpResult.getBaseRespResult().getMessage());
             }
-            result.add(executeOpResult.getData());
+            excuteLogList.add(executeOpResult.getData());
+
             index++;
         }
-        return OpResult.success(result);
+        vo.setExecuteLogList(excuteLogList);
+        return OpResult.success(vo);
     }
 
     public OpResult<Void> parse(ParseParam param) throws Exception {
@@ -61,7 +70,7 @@ public class FFmengService {
             return checkOpResult;
         }
 
-        String ffmpegFilePath = this.getFFmengFilePath();
+        String ffmpegFilePath = getFfmpegFilePath();
 
         List<ParseParam.CommandDto> commandDtoList = param.convert();
         int index = 1;
@@ -75,15 +84,20 @@ public class FFmengService {
         return OpResult.success();
     }
 
-    public OpResult<List<List<String>>> videoToAudioV2(VideoToAudioParam param) throws Exception {
+    public OpResult<MediaVo> videoToAudioV2(VideoToAudioParam param) throws Exception {
         log.info("param={}", JSON.toJSONString(param));
+        MediaVo vo = new MediaVo();
         OpResult<Void> checkOpResult = param.check();
         if(checkOpResult.isFailure()) {
             return OpResult.error(checkOpResult.getBaseRespResult().getMessage());
         }
-        String ffmpegFilePath = this.getFFmengFilePath();
+
+        String srcFilePath = param.letSrcFilePath();
+        vo.setMediaDuration(getMediaDuration(srcFilePath).getData());
+
+        String ffmpegFilePath = getFfmpegFilePath();
         VideoToAudioParam.CommandDto commandDto = param.convert();
-        List<List<String>> result = new ArrayList<>();
+        List<List<String>> executeLogList = new ArrayList<>();
         OpResult<List<String>> commandListOpResult = commandDto.getCommandList(ffmpegFilePath);
         if(commandListOpResult.isFailure()) {
             return OpResult.error(commandListOpResult.getBaseRespResult().getMessage());
@@ -93,8 +107,9 @@ public class FFmengService {
         if(executeOpResult.isFailure()) {
             return OpResult.error(checkOpResult.getBaseRespResult().getMessage());
         }
-        result.add(executeOpResult.getData());
-        return OpResult.success(result);
+        executeLogList.add(executeOpResult.getData());
+        vo.setExecuteLogList(executeLogList);
+        return OpResult.success(vo);
     }
 
     public OpResult<Void> videoToAudio(VideoToAudioParam param) throws Exception {
@@ -104,7 +119,7 @@ public class FFmengService {
             return checkOpResult;
         }
 
-        String ffmpegFilePath = this.getFFmengFilePath();
+        String ffmpegFilePath = getFfmpegFilePath();
         VideoToAudioParam.CommandDto commandDto = param.convert();
         String finalCommand = commandDto.letFinalCommand(ffmpegFilePath);
         Process process = Runtime.getRuntime().exec(finalCommand);
@@ -129,6 +144,54 @@ public class FFmengService {
             throw new RuntimeException(e);
         }
         return OpResult.success(result);
+    }
+
+    /**
+     * 获取音视频的总时长
+     * @param ffmpegFilePath
+     * @param srcFilePath
+     * @return
+     * @throws Exception
+     */
+    public static OpResult<String> getMediaDuration(String ffmpegFilePath, String srcFilePath) throws Exception {
+        return getMediaDuration(ffmpegFilePath, srcFilePath);
+    }
+
+    /**
+     * 获取音视频的总时长
+     * @param srcFilePath
+     * @return
+     * @throws Exception
+     */
+    public static OpResult<String> getMediaDuration(String srcFilePath) {
+        List<String> commandList = new ArrayList<>();
+        commandList.add(getFfmpegFilePath());
+        commandList.add("-i");
+        commandList.add(srcFilePath);
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command(commandList);
+        builder.redirectErrorStream(true);
+        Process process = null;
+        try {
+            process = builder.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String mediaLength = "";
+        String line;
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            while ((line = bufferedReader.readLine()) != null) {
+                if(StringUtils.contains(line, "Duration:")) {
+                    log.info("{}", line);
+                    String lengthStr = StringUtils.trim(StringUtils.substringAfter(line, "Duration:"));
+                    mediaLength = StringUtils.substring(lengthStr, 0, 8);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return OpResult.success(mediaLength);
     }
 
 }

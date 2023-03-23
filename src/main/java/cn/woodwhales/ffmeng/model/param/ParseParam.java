@@ -1,10 +1,12 @@
-package cn.woodwhales.ffmeng.model;
+package cn.woodwhales.ffmeng.model.param;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.woodwhales.common.business.DataTool;
 import cn.woodwhales.common.model.result.OpResult;
+import cn.woodwhales.ffmeng.model.dto.MediaDto;
+import cn.woodwhales.ffmeng.service.FfmpegService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +26,10 @@ public class ParseParam {
     private String srcFilePath;
     private String destFilePath;
     private List<List<String>> timeArrList;
+
+    public String letSrcFilePath() {
+        return this.srcFilePath + File.separator + this.srcFileName;
+    }
 
     public OpResult<Void> check() throws Exception {
         if (!FileUtil.exist(this.srcFilePath)) {
@@ -62,25 +68,25 @@ public class ParseParam {
         private String startTime;
         private Integer duration;
 
-        public String letFinalCommand(String ffmengFilePath,
+        public String letFinalCommand(String ffmpegFilePath,
                                       ParseParam param,
                                       Integer index) {
-            String srcFilePath = param.getSrcFilePath() + File.separator + param.getSrcFileName();
+            String srcFilePath = param.letSrcFilePath();
             String destFilePath = param.getDestFilePath() + File.separator +
                     StringUtils.substringBeforeLast(param.getSrcFileName(), ".") + "-" + index + "." +
                     StringUtils.substringAfterLast(param.getSrcFileName(), ".");
-            return String.format("%s -ss %s -t %s -i %s -c copy %s", ffmengFilePath, startTime, duration, srcFilePath, destFilePath);
+            return String.format("%s -ss %s -t %s -i %s -c copy %s", ffmpegFilePath, startTime, duration, srcFilePath, destFilePath);
         }
 
-        public OpResult<List<String>> getCommandList(String ffmengFilePath,
-                                           ParseParam param,
-                                           Integer index) {
-            String srcFilePath = param.getSrcFilePath() + File.separator + param.getSrcFileName();
+        public OpResult<List<String>> getCommandList(String ffmpegFilePath,
+                                                 ParseParam param,
+                                                 Integer index) {
+            String srcFilePath = param.letSrcFilePath();
             String destFilePath = param.getDestFilePath() + File.separator +
                     StringUtils.substringBeforeLast(param.getSrcFileName(), ".") + "-" + index + "." +
                     StringUtils.substringAfterLast(param.getSrcFileName(), ".");
             List<String> command = new ArrayList<>();
-            command.add(ffmengFilePath);
+            command.add(ffmpegFilePath);
             command.add("-ss");
             command.add(this.startTime);
             command.add("-t");

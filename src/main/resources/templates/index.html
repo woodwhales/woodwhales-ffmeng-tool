@@ -52,6 +52,9 @@
                             <el-button size="mini" @click="onSplice" type="primary" :disabled="temp.disableEdit">分割</el-button>
                             <el-button size="mini" @click="initDateForm">重置</el-button>
                         </el-row>
+                        <el-row :gutter="20" style="margin-bottom: 10px; text-align: left; font-size: 12px;" v-if="temp.respSrcDuration !== null">
+                            <span style="margin-left: 10px;">原始视频总时长：{{temp.respSrcDuration}}</span>
+                        </el-row>
                         <template v-for="item in temp.respLog">
                             <el-row :gutter="20" style="margin-bottom: 20px;" v-if="temp.respLog !== ''">
                                 <el-col :span="24">
@@ -75,6 +78,9 @@
                         <el-row :gutter="20" style="margin-bottom: 10px;">
                             <el-button size="mini" @click="onConvert" :disabled="temp.disableEdit2" type="primary">转换</el-button>
                             <el-button size="mini" @click="initDateForm2">重置</el-button>
+                        </el-row>
+                        <el-row :gutter="20" style="margin-bottom: 10px; text-align: left; font-size: 12px;" v-if="temp.respSrcDuration2 !== null">
+                            <span style="margin-left: 10px;">原始视频总时长：{{temp.respSrcDuration2}}</span>
                         </el-row>
                         <template v-for="item in temp.respLog2">
                             <el-row :gutter="20" style="margin-bottom: 20px;" v-if="temp.respLog2 !== ''">
@@ -111,6 +117,8 @@
                 activeName: 'splice',
                 disableEdit: false,
                 disableEdit2: false,
+                respSrcDuration: null,
+                respSrcDuration2: null,
                 respLog: [],
                 respLog2: []
             },
@@ -179,7 +187,8 @@
                     } else {
                         this.$message.error(response.data.msg);
                     }
-                    this.temp.respLog2 = response.data.data;
+                    this.temp.respLog2 = response.data.data.executeLogList;
+                    this.temp.respSrcDuration2 = response.data.data.mediaDuration;
                 })
                 .catch(error => {
                     this.$message.error(error);
@@ -193,6 +202,7 @@
             this.dataForm.timeArrList = [];
             this.temp.respLog = [];
             this.temp.disableEdit = false;
+            this.temp.respSrcDuration = null;
         },
         initDateForm2: function () {
             this.dataForm2.srcFileName = null;
@@ -200,6 +210,7 @@
             this.dataForm2.destFilePath = null;
             this.temp.respLog2 = [];
             this.temp.disableEdit2 = false;
+            this.temp.respSrcDuration2 = null;
         },
         onSplice: function() {
             if(this.dataForm.srcFileName === '' || this.dataForm.srcFileName == null) {
@@ -241,7 +252,8 @@
                 } else {
                     this.$message.error(response.data.msg);
                 }
-                this.temp.respLog = response.data.data;
+                this.temp.respLog = response.data.data.executeLogList;
+                this.temp.respSrcDuration = response.data.data.mediaDuration;
             })
             .catch(error => {
                 this.$message.error(error);
