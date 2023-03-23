@@ -1,6 +1,10 @@
 # woodwhales-ffmpeg-tool
 音视频转换工具
 
+- 功能1：音频按原音频时间段分割
+
+- 功能2：视频转音频
+
 ![](doc/index.png)
 
 ### 环境准备
