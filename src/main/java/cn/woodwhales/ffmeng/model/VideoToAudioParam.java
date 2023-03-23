@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author woodwhales on 2023-03-22 17:13
@@ -43,6 +45,21 @@ public class VideoToAudioParam {
 
         public String letFinalCommand(String ffmengFilePath) {
             return String.format("%s -i %s -vn -acodec copy %s", ffmengFilePath, this.srcFile, this.destFile);
+        }
+
+        public OpResult<List<String>> getCommandList(String ffmengFilePath) {
+            List<String> command = new ArrayList<String>();
+            command.add(ffmengFilePath);
+            command.add("-i");
+            command.add(this.srcFile);
+            command.add("-vn");
+            command.add("-acodec");
+            command.add("copy");
+            command.add(this.destFile);
+            if(FileUtil.exist(this.destFile)) {
+                return OpResult.error(String.format("目标文件:%s已存在，请及时清理", destFile));
+            }
+            return OpResult.success(command);
         }
     }
 

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -65,10 +66,34 @@ public class ParseParam {
                                       ParseParam param,
                                       Integer index) {
             String srcFilePath = param.getSrcFilePath() + File.separator + param.getSrcFileName();
-            String descFilePath = param.getDestFilePath() + File.separator +
+            String destFilePath = param.getDestFilePath() + File.separator +
                     StringUtils.substringBeforeLast(param.getSrcFileName(), ".") + "-" + index + "." +
                     StringUtils.substringAfterLast(param.getSrcFileName(), ".");
-            return String.format("%s -ss %s -t %s -i %s -c copy %s", ffmengFilePath, startTime, duration, srcFilePath, descFilePath);
+            return String.format("%s -ss %s -t %s -i %s -c copy %s", ffmengFilePath, startTime, duration, srcFilePath, destFilePath);
+        }
+
+        public OpResult<List<String>> getCommandList(String ffmengFilePath,
+                                           ParseParam param,
+                                           Integer index) {
+            String srcFilePath = param.getSrcFilePath() + File.separator + param.getSrcFileName();
+            String destFilePath = param.getDestFilePath() + File.separator +
+                    StringUtils.substringBeforeLast(param.getSrcFileName(), ".") + "-" + index + "." +
+                    StringUtils.substringAfterLast(param.getSrcFileName(), ".");
+            List<String> command = new ArrayList<>();
+            command.add(ffmengFilePath);
+            command.add("-ss");
+            command.add(this.startTime);
+            command.add("-t");
+            command.add(this.duration + "");
+            command.add("-i");
+            command.add(srcFilePath);
+            command.add("-c");
+            command.add("copy");
+            command.add(destFilePath);
+            if(FileUtil.exist(destFilePath)) {
+                return OpResult.error(String.format("目标文件:%s已存在，请及时清理", destFilePath));
+            }
+            return OpResult.success(command);
         }
     }
 

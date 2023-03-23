@@ -28,16 +28,16 @@
                 <el-tabs v-model="temp.activeName" @tab-click="handleClick">
                     <el-tab-pane label="音视频分割" name="splice">
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            原始文件名称：<el-input v-model="dataForm.srcFileName" placeholder="请输入原始文件名称" style="width: 800px;"></el-input>
+                            原始文件名称：<el-input v-model="dataForm.srcFileName" :disabled="temp.disableEdit" placeholder="请输入原始文件名称" style="width: 800px;"></el-input>
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            原始文件地址：<el-input v-model="dataForm.srcFilePath" placeholder="请输入原始文件地址" style="width: 800px;" @change="onChangeSrcFilePath"></el-input>
+                            原始文件地址：<el-input v-model="dataForm.srcFilePath" :disabled="temp.disableEdit" placeholder="请输入原始文件地址" style="width: 800px;" @change="onChangeSrcFilePath"></el-input>
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            目标文件地址：<el-input v-model="dataForm.destFilePath" placeholder="请输入目标文件地址" style="width: 800px;"></el-input>
+                            目标文件地址：<el-input v-model="dataForm.destFilePath" :disabled="temp.disableEdit" placeholder="请输入目标文件地址" style="width: 800px;"></el-input>
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            <el-button size="mini" @click="onAddTime">添加时间范围</el-button>
+                            <el-button size="mini" @click="onAddTime" :disabled="temp.disableEdit">添加时间范围</el-button>
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
                             <template v-for="(item,index) in dataForm.timeArrList">
@@ -49,24 +49,42 @@
                             </template>
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            <el-button size="mini" @click="onSplice" type="primary">分割</el-button>
+                            <el-button size="mini" @click="onSplice" type="primary" :disabled="temp.disableEdit">分割</el-button>
                             <el-button size="mini" @click="initDateForm">重置</el-button>
                         </el-row>
+                        <template v-for="item in temp.respLog">
+                            <el-row :gutter="20" style="margin-bottom: 20px;" v-if="temp.respLog !== ''">
+                                <el-col :span="24">
+                                        <el-card class="box-card" style="background-color: #121212">
+                                            <span v-for="line in item" style="font-size: 5px; text-align: left; display: block; color: #ffc800;">{{line}}</span>
+                                        </el-card>
+                                </el-col>
+                            </el-row>
+                        </template>
                     </el-tab-pane>
                     <el-tab-pane label="音频转视频" name="audioToVideo">
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            原始文件名称：<el-input v-model="dataForm2.srcFileName" placeholder="请输入原始文件名称" style="width: 800px;"></el-input>
+                            原始文件名称：<el-input v-model="dataForm2.srcFileName" :disabled="temp.disableEdit2" placeholder="请输入原始文件名称" style="width: 800px;"></el-input>
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            原始文件地址：<el-input v-model="dataForm2.srcFilePath" placeholder="请输入原始文件地址" style="width: 800px;" @change="onChangeSrcFilePath2"></el-input>
+                            原始文件地址：<el-input v-model="dataForm2.srcFilePath" :disabled="temp.disableEdit2" placeholder="请输入原始文件地址" style="width: 800px;" @change="onChangeSrcFilePath2"></el-input>
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            目标文件地址：<el-input v-model="dataForm2.destFilePath" placeholder="请输入目标文件地址" style="width: 800px;"></el-input>
+                            目标文件地址：<el-input v-model="dataForm2.destFilePath" :disabled="temp.disableEdit2" placeholder="请输入目标文件地址" style="width: 800px;"></el-input>
                         </el-row>
                         <el-row :gutter="20" style="margin-bottom: 10px;">
-                            <el-button size="mini" @click="onConvert" type="primary">转换</el-button>
+                            <el-button size="mini" @click="onConvert" :disabled="temp.disableEdit2" type="primary">转换</el-button>
                             <el-button size="mini" @click="initDateForm2">重置</el-button>
                         </el-row>
+                        <template v-for="item in temp.respLog2">
+                            <el-row :gutter="20" style="margin-bottom: 20px;" v-if="temp.respLog2 !== ''">
+                                <el-col :span="24">
+                                    <el-card class="box-card" style="background-color: #121212">
+                                        <span v-for="line in item" style="font-size: 5px; text-align: left; display: block; color: #ffc800;">{{line}}</span>
+                                    </el-card>
+                                </el-col>
+                            </el-row>
+                        </template>
                     </el-tab-pane>
                 </el-tabs>
             </el-col>
@@ -81,13 +99,17 @@
 <!-- import JavaScript -->
 <script src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script>
+<script type="text/javascript" th:inline="none">
     new Vue({
     el: '#app',
     data: function () {
         return {
             temp: {
-                activeName: 'splice'
+                activeName: 'splice',
+                disableEdit: false,
+                disableEdit2: false,
+                respLog: [],
+                respLog2: []
             },
             dataForm2: {
                 srcFileName: null,
@@ -143,17 +165,18 @@
                 });
                 return;
             }
-            axios.post('/videoToAudio', this.dataForm2)
+            this.temp.disableEdit2 = true;
+            axios.post('/videoToAudioV2', this.dataForm2)
                 .then(response => {
                     if(response.data.code === 0) {
                         this.$message({
                             message: response.data.msg,
                             type: 'success'
                         });
-                        this.initDateForm2();
                     } else {
                         this.$message.error(response.data.msg);
                     }
+                    this.temp.respLog2 = response.data.data;
                 })
                 .catch(error => {
                     this.$message.error(error);
@@ -165,11 +188,15 @@
             this.dataForm.srcFilePath = null;
             this.dataForm.destFilePath = null;
             this.dataForm.timeArrList = [];
+            this.temp.respLog = [];
+            this.temp.disableEdit = false;
         },
         initDateForm2: function () {
             this.dataForm2.srcFileName = null;
             this.dataForm2.srcFilePath = null;
             this.dataForm2.destFilePath = null;
+            this.temp.respLog2 = [];
+            this.temp.disableEdit2 = false;
         },
         onSplice: function() {
             if(this.dataForm.srcFileName === '' || this.dataForm.srcFileName == null) {
@@ -193,25 +220,25 @@
                 });
                 return;
             }
-            if(this.dataForm.timeArrList.length == 0) {
+            if(this.dataForm.timeArrList.length === 0) {
                 this.$message({
                     message: '请输入要分割的时间范围',
                     type: 'warning'
                 });
                 return;
             }
-
-            axios.post('/parse', this.dataForm)
+            this.temp.disableEdit = true;
+            axios.post('/parseV2', this.dataForm)
             .then(response => {
                 if(response.data.code === 0) {
                     this.$message({
                         message: response.data.msg,
                         type: 'success'
                     });
-                    this.initDateForm();
                 } else {
                     this.$message.error(response.data.msg);
                 }
+                this.temp.respLog = response.data.data;
             })
             .catch(error => {
                 this.$message.error(error);
