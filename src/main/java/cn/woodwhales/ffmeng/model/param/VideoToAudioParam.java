@@ -33,8 +33,13 @@ public class VideoToAudioParam {
         if (!FileUtil.exist(srcFile)) {
             return OpResult.error("原始文件不存在");
         }
-        String destFile = this.destFilePath + File.separator + StringUtils.substringBeforeLast(this.srcFileName, ".") + "." + "m4a";
-        if(FileUtil.exist(destFile)) {
+        String destFile;
+        if (StringUtils.endsWithIgnoreCase(this.srcFileName, ".mkv")) {
+            destFile = this.destFilePath + File.separator + StringUtils.substringBeforeLast(this.srcFileName, ".") + "." + "mp3";
+        } else {
+            destFile = this.destFilePath + File.separator + StringUtils.substringBeforeLast(this.srcFileName, ".") + "." + "m4a";
+        }
+        if (FileUtil.exist(destFile)) {
             return OpResult.error(String.format("目标文件:%s已存在，请及时清理", destFile));
         }
         return OpResult.success();
@@ -48,28 +53,43 @@ public class VideoToAudioParam {
         private String destFile;
 
         public String letFinalCommand(String ffmpegFilePath) {
-            return String.format("%s -i %s -vn -acodec copy %s", ffmpegFilePath, this.srcFile, this.destFile);
+            if (StringUtils.endsWithIgnoreCase(this.srcFile, ".mkv")) {
+                return String.format("%s -i %s -b:a 64K %s", ffmpegFilePath, this.srcFile, this.destFile);
+            } else {
+                return String.format("%s -i %s -vn -acodec copy %s", ffmpegFilePath, this.srcFile, this.destFile);
+            }
         }
 
         public OpResult<List<String>> getCommandList(String ffmpegFilePath) {
+            if (FileUtil.exist(this.destFile)) {
+                return OpResult.error(String.format("目标文件:%s已存在，请及时清理", destFile));
+            }
             List<String> command = new ArrayList<String>();
             command.add(ffmpegFilePath);
             command.add("-i");
             command.add(this.srcFile);
-            command.add("-vn");
-            command.add("-acodec");
-            command.add("copy");
-            command.add(this.destFile);
-            if(FileUtil.exist(this.destFile)) {
-                return OpResult.error(String.format("目标文件:%s已存在，请及时清理", destFile));
+            if (!StringUtils.endsWithIgnoreCase(this.srcFile, ".mkv")) {
+                command.add("-vn");
+                command.add("-acodec");
+                command.add("copy");
+            } else {
+                command.add("-b:a");
+                command.add("64K");
             }
+            command.add(this.destFile);
             return OpResult.success(command);
         }
     }
 
     public CommandDto convert() {
-        return new CommandDto(this.srcFilePath + File.separator + this.srcFileName,
-                this.destFilePath + File.separator + StringUtils.substringBeforeLast(this.srcFileName, ".") + "." + "m4a");
+        String srcFile = this.srcFilePath + File.separator + this.srcFileName;
+        String destFile;
+        if(StringUtils.endsWithIgnoreCase(srcFile, ".mkv")) {
+            destFile = this.destFilePath + File.separator + StringUtils.substringBeforeLast(this.srcFileName, ".") + "." + "mp3";
+        } else {
+            destFile = this.destFilePath + File.separator + StringUtils.substringBeforeLast(this.srcFileName, ".") + "." + "m4a";
+        }
+        return new CommandDto(srcFile, destFile);
     }
 
 }

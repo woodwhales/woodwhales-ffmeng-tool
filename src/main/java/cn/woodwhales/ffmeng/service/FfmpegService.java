@@ -103,6 +103,7 @@ public class FfmpegService {
             return OpResult.error(commandListOpResult.getBaseRespResult().getMessage());
         }
         List<String> commandList = commandListOpResult.getData();
+        log.info("commandList={}", JSON.toJSONString(commandList));
         OpResult<List<String>> executeOpResult = this.execute(commandList);
         if(executeOpResult.isFailure()) {
             return OpResult.error(checkOpResult.getBaseRespResult().getMessage());
