@@ -131,6 +131,13 @@ public class FfmpegService {
 
     public OpResult<List<String>> execute(List<String> commandList) throws Exception {
         ProcessBuilder builder = new ProcessBuilder();
+
+        StringBuffer sb = new StringBuffer();
+        for (String command : commandList) {
+            sb.append(command).append(" ");
+        }
+        log.info("command={}", sb.toString());
+
         builder.command(commandList);
         builder.redirectErrorStream(true);
         Process process = builder.start();

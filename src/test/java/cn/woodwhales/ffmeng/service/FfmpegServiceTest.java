@@ -17,7 +17,7 @@ import java.util.List;
 class FfmpegServiceTest {
 
     public static void main(String[] args) throws Exception {
-        main4();
+        main5();
     }
 
     public static void main4() throws Exception {
@@ -49,6 +49,17 @@ class FfmpegServiceTest {
         commandDto.setSrcFile("D:\\movie\\神探亨特张.mp4");
         commandDto.setDestFile("D:\\movie\\神探亨特张.m4a");
         OpResult<List<String>> commandListOpResult = commandDto.getCommandList(resource.getFile());
+        FfmpegService ffmpegService = new FfmpegService();
+        OpResult<List<String>> execute = ffmpegService.execute(commandListOpResult.getData());
+        execute.getData().forEach(System.out::println);
+    }
+
+    public static void main5() throws Exception {
+        URL resource = FfmpegServiceTest.class.getClassLoader().getResource("ffmpeg.exe");
+        VideoToAudioParam.CommandDto commandDto = new VideoToAudioParam.CommandDto();
+        commandDto.setSrcFile("D:\\movie\\功夫.m4a");
+        commandDto.setDestFile("D:\\movie\\功夫.mp3");
+        OpResult<List<String>> commandListOpResult = commandDto.m4aToMp3(resource.getFile());
         FfmpegService ffmpegService = new FfmpegService();
         OpResult<List<String>> execute = ffmpegService.execute(commandListOpResult.getData());
         execute.getData().forEach(System.out::println);

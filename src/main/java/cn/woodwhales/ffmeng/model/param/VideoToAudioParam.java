@@ -60,6 +60,23 @@ public class VideoToAudioParam {
             }
         }
 
+        public OpResult<List<String>> m4aToMp3(String ffmpegFilePath) {
+            if (FileUtil.exist(this.destFile)) {
+                return OpResult.error(String.format("目标文件:%s已存在，请及时清理", destFile));
+            }
+
+            List<String> command = new ArrayList<String>();
+            command.add(ffmpegFilePath);
+            command.add("-i");
+            command.add(this.srcFile);
+            command.add("-acodec");
+            command.add("mp3");
+            command.add("-ab");
+            command.add("192k");
+            command.add(this.destFile);
+            return OpResult.success(command);
+        }
+
         public OpResult<List<String>> getCommandList(String ffmpegFilePath) {
             if (FileUtil.exist(this.destFile)) {
                 return OpResult.error(String.format("目标文件:%s已存在，请及时清理", destFile));
