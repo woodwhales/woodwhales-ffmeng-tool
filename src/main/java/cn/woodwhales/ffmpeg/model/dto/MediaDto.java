@@ -1,4 +1,4 @@
-package cn.woodwhales.ffmeng.model.dto;
+package cn.woodwhales.ffmpeg.model.dto;
 
 import lombok.Data;
 

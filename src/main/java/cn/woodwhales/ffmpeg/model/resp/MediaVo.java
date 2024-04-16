@@ -1,4 +1,4 @@
-package cn.woodwhales.ffmeng.model.resp;
+package cn.woodwhales.ffmpeg.model.resp;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

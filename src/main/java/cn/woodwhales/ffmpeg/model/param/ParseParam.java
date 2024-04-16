@@ -1,12 +1,10 @@
-package cn.woodwhales.ffmeng.model.param;
+package cn.woodwhales.ffmpeg.model.param;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.woodwhales.common.business.DataTool;
 import cn.woodwhales.common.model.result.OpResult;
-import cn.woodwhales.ffmeng.model.dto.MediaDto;
-import cn.woodwhales.ffmeng.service.FfmpegService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,10 +1,9 @@
-package cn.woodwhales.ffmeng.service;
+package cn.woodwhales.ffmpeg.service;
 
-import cn.hutool.core.io.FileUtil;
 import cn.woodwhales.common.model.result.OpResult;
-import cn.woodwhales.ffmeng.model.param.ParseParam;
-import cn.woodwhales.ffmeng.model.param.VideoToAudioParam;
-import cn.woodwhales.ffmeng.model.resp.MediaVo;
+import cn.woodwhales.ffmpeg.model.param.ParseParam;
+import cn.woodwhales.ffmpeg.model.param.VideoToAudioParam;
+import cn.woodwhales.ffmpeg.model.resp.MediaVo;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -16,9 +15,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author woodwhales on 2023-03-22 14:34
@@ -158,7 +159,7 @@ public class FfmpegService {
 
     public OpResult<List<String>> execute(List<String> commandList) throws Exception {
         ProcessBuilder builder = new ProcessBuilder();
-
+        Map<String, String> environment = builder.environment();
         StringBuffer sb = new StringBuffer();
         for (String command : commandList) {
             sb.append(command).append(" ");

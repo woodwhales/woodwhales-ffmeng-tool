@@ -1,4 +1,4 @@
-package cn.woodwhales.ffmeng;
+package cn.woodwhales.ffmpeg;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

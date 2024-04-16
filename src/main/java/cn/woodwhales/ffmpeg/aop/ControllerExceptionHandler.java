@@ -1,4 +1,4 @@
-package cn.woodwhales.ffmeng.aop;
+package cn.woodwhales.ffmpeg.aop;
 
 import cn.woodwhales.common.model.vo.RespVO;
 import lombok.extern.slf4j.Slf4j;

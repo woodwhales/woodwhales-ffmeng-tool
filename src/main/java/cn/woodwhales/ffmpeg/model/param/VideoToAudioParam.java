@@ -1,4 +1,4 @@
-package cn.woodwhales.ffmeng.model.param;
+package cn.woodwhales.ffmpeg.model.param;
 
 import cn.hutool.core.io.FileUtil;
 import cn.woodwhales.common.model.result.OpResult;

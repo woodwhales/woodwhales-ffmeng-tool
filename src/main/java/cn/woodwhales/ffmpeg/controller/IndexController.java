@@ -1,4 +1,4 @@
-package cn.woodwhales.ffmeng.controller;
+package cn.woodwhales.ffmpeg.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
