@@ -1,3 +1,4 @@
 *.js linguist-language=java
 *.css linguist-language=java
 *.html linguist-language=java
+ffmpeg.exe filter=lfs diff=lfs merge=lfs -text
