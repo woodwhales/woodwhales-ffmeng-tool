@@ -1,15 +1,18 @@
 package cn.woodwhales.ffmeng.service;
 
+import cn.hutool.core.io.FileUtil;
 import cn.woodwhales.common.model.result.OpResult;
 import cn.woodwhales.ffmeng.model.param.ParseParam;
 import cn.woodwhales.ffmeng.model.param.VideoToAudioParam;
 import cn.woodwhales.ffmeng.model.resp.MediaVo;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -25,8 +28,31 @@ import java.util.List;
 public class FfmpegService {
 
     private static String getFfmpegFilePath() {
-        URL resource = FfmpegService.class.getClassLoader().getResource("ffmpeg.exe");
-        return resource.getFile();
+        File ffmpegFile = new File("/temp/woodwhales-ffmpeg.exe");
+
+        if (ffmpegFile.exists()) {
+            if (!ffmpegFile.canExecute()) {
+                boolean flag = ffmpegFile.setExecutable(true);
+                if (!flag) {
+                    throw new IllegalArgumentException("设置文件可执行权限失败："+ ffmpegFile.getAbsolutePath());
+                }
+            }
+            return ffmpegFile.getAbsolutePath();
+        } else {
+            URL resource = FfmpegService.class.getClassLoader().getResource("ffmpeg.exe");
+            try {
+                FileUtils.copyFile(new File(resource.getFile()), ffmpegFile);
+                if (!ffmpegFile.canExecute()) {
+                    boolean flag = ffmpegFile.setExecutable(true);
+                    if (!flag) {
+                        throw new IllegalArgumentException("设置文件可执行权限失败："+ ffmpegFile.getAbsolutePath());
+                    }
+                }
+                return ffmpegFile.getAbsolutePath();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public OpResult<MediaVo> parseV2(ParseParam param) throws Exception {
@@ -94,8 +120,9 @@ public class FfmpegService {
 
         String srcFilePath = param.letSrcFilePath();
         vo.setMediaDuration(getMediaDuration(srcFilePath).getData());
-
+        log.info("mediaDuration={}", vo.getMediaDuration());
         String ffmpegFilePath = getFfmpegFilePath();
+        log.info("ffmpegFilePath={}", ffmpegFilePath);
         VideoToAudioParam.CommandDto commandDto = param.convert();
         List<List<String>> executeLogList = new ArrayList<>();
         OpResult<List<String>> commandListOpResult = commandDto.getCommandList(ffmpegFilePath);
@@ -103,7 +130,7 @@ public class FfmpegService {
             return OpResult.error(commandListOpResult.getBaseRespResult().getMessage());
         }
         List<String> commandList = commandListOpResult.getData();
-        log.info("commandList={}", JSON.toJSONString(commandList));
+
         OpResult<List<String>> executeOpResult = this.execute(commandList);
         if(executeOpResult.isFailure()) {
             return OpResult.error(checkOpResult.getBaseRespResult().getMessage());
@@ -137,7 +164,6 @@ public class FfmpegService {
             sb.append(command).append(" ");
         }
         log.info("command={}", sb.toString());
-
         builder.command(commandList);
         builder.redirectErrorStream(true);
         Process process = builder.start();
@@ -173,11 +199,14 @@ public class FfmpegService {
      */
     public static OpResult<String> getMediaDuration(String srcFilePath) {
         List<String> commandList = new ArrayList<>();
-        commandList.add(getFfmpegFilePath());
+        String ffmpegFilePath = getFfmpegFilePath();
+        log.info("ffmpegFilePath ={}", ffmpegFilePath);
+        commandList.add(ffmpegFilePath);
         commandList.add("-i");
         commandList.add(srcFilePath);
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(commandList);
+        log.info("commandList={}", JSON.toJSONString(commandList));
         builder.redirectErrorStream(true);
         Process process = null;
         try {

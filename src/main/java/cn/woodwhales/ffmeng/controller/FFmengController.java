@@ -30,12 +30,6 @@ public class FFmengController {
         return RespVO.resp(FfmpegService.parseV2(param));
     }
 
-//    @CrossOrigin
-//    @PostMapping("/videoToAudio")
-//    public RespVO<Void> videoToAudio(@RequestBody VideoToAudioParam param) throws Exception {
-//        return RespVO.resp(FfmpegService.videoToAudio(param));
-//    }
-
     @CrossOrigin
     @PostMapping("/videoToAudioV2")
     public RespVO<MediaVo> videoToAudioV2(@RequestBody VideoToAudioParam param) throws Exception {
