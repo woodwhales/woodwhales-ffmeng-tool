@@ -1,10 +1,10 @@
-package cn.woodwhales.ffmeng.controller;
+package cn.woodwhales.ffmpeg.controller;
 
 import cn.woodwhales.common.model.vo.RespVO;
-import cn.woodwhales.ffmeng.model.param.ParseParam;
-import cn.woodwhales.ffmeng.model.param.VideoToAudioParam;
-import cn.woodwhales.ffmeng.model.resp.MediaVo;
-import cn.woodwhales.ffmeng.service.FfmpegService;
+import cn.woodwhales.ffmpeg.model.param.ParseParam;
+import cn.woodwhales.ffmpeg.model.param.VideoToAudioParam;
+import cn.woodwhales.ffmpeg.model.resp.MediaVo;
+import cn.woodwhales.ffmpeg.service.FfmpegService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

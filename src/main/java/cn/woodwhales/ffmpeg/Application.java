@@ -1,4 +1,4 @@
-package cn.woodwhales.ffmeng;
+package cn.woodwhales.ffmpeg;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

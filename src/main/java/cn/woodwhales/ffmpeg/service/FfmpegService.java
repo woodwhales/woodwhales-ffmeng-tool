@@ -1,10 +1,9 @@
-package cn.woodwhales.ffmeng.service;
+package cn.woodwhales.ffmpeg.service;
 
-import cn.hutool.core.io.FileUtil;
 import cn.woodwhales.common.model.result.OpResult;
-import cn.woodwhales.ffmeng.model.param.ParseParam;
-import cn.woodwhales.ffmeng.model.param.VideoToAudioParam;
-import cn.woodwhales.ffmeng.model.resp.MediaVo;
+import cn.woodwhales.ffmpeg.model.param.ParseParam;
+import cn.woodwhales.ffmpeg.model.param.VideoToAudioParam;
+import cn.woodwhales.ffmpeg.model.resp.MediaVo;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;

@@ -1,7 +1,7 @@
-package cn.woodwhales.ffmeng.model;
+package cn.woodwhales.ffmpeg.model;
 
-import cn.woodwhales.ffmeng.model.param.ParseParam;
-import cn.woodwhales.ffmeng.model.param.VideoToAudioParam;
+import cn.woodwhales.ffmpeg.model.param.ParseParam;
+import cn.woodwhales.ffmpeg.model.param.VideoToAudioParam;
 import com.alibaba.fastjson.JSON;
 
 import java.util.List;
