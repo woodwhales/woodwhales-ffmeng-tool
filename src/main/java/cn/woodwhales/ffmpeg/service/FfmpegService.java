@@ -159,7 +159,6 @@ public class FfmpegService {
 
     public OpResult<List<String>> execute(List<String> commandList) throws Exception {
         ProcessBuilder builder = new ProcessBuilder();
-        Map<String, String> environment = builder.environment();
         StringBuffer sb = new StringBuffer();
         for (String command : commandList) {
             sb.append(command).append(" ");

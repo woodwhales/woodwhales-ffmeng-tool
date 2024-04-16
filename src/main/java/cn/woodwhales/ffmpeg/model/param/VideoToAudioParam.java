@@ -90,8 +90,13 @@ public class VideoToAudioParam {
                 command.add("-acodec");
                 command.add("copy");
             } else {
-                command.add("-b:a");
-                command.add("64K");
+                command.add("-c:a");
+                command.add("libmp3lame");
+                // 指定音频码率
+                command.add("-b:a 64k");
+                // 指定视频码率
+//                command.add("-b:v 2000k");
+                command.add("-vn");
             }
             command.add(this.destFile);
             return OpResult.success(command);

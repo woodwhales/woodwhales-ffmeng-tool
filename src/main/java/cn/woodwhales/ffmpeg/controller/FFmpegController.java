@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/")
-public class FFmengController {
+public class FFmpegController {
 
     @Autowired
     private FfmpegService FfmpegService;
